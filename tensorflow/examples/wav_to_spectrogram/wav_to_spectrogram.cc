@@ -55,7 +55,8 @@ tensorflow::Status WavToSpectrogram(const tensorflow::string& input_wav,
   //  - Encodes it as a PNG stream and saves it out to a file.
   Output file_reader = ReadFile(root.WithOpName("input_wav"), input_wav);
   DecodeWav wav_decoder =
-      DecodeWav(root.WithOpName("wav_decoder"), file_reader);
+      DecodeWav(root.WithOpName("wav_decoder"), file_reader,
+                DecodeWav::Attrs().DesiredChannels(1));
   Output spectrogram = AudioSpectrogram(root.WithOpName("spectrogram"),
                                         wav_decoder.audio, window_size, stride);
   Output brightness_placeholder =
