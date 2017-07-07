@@ -46,6 +46,7 @@ py_library(
     deps = [
         ":tf_optimizer",
         ":array_ops",
+        ":audio_ops",
         ":bitwise_ops",
         ":check_ops",
         ":client",
@@ -1072,6 +1073,11 @@ tf_gen_op_wrapper_private_py(
 )
 
 tf_gen_op_wrapper_private_py(
+    name = "audio_ops_gen",
+    require_shape_functions = True,
+)
+
+tf_gen_op_wrapper_private_py(
     name = "bitwise_ops_gen",
     require_shape_functions = True,
     visibility = [
@@ -1287,6 +1293,17 @@ py_library(
         ":util",
         "//third_party/py/numpy",
         "@six_archive//:six",
+    ],
+)
+
+py_library(
+    name = "audio_ops",
+    srcs = ["ops/audio_ops.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":audio_ops_gen",
+        ":framework",
+        ":util",
     ],
 )
 
