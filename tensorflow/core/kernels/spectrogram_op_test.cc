@@ -23,6 +23,7 @@ limitations under the License.
 #include "tensorflow/cc/ops/audio_ops.h"
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/math_ops.h"
+#include "tensorflow/core/framework/shape_inference_testutil.h"
 #include "tensorflow/core/framework/tensor_testutil.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
@@ -99,6 +100,23 @@ TEST(SpectrogramOpTest, SquaredTest) {
   test::ExpectTensorNear<float>(
       spectrogram_tensor,
       test::AsTensor<float>({0, 1, 4, 1, 0}, TensorShape({1, 1, 5})), 1e-3);
+}
+
+TEST(SpectrogramOpTest, SpectrogramOp_ShapeFn) {
+  const string op_name = "AudioSpectrogram";
+  ShapeInferenceTestOp op(op_name);
+  
+  INFER_ERROR("Shape must be rank 2 but is rank 1", op, "[1]");
+  INFER_ERROR("Shape must be rank 2 but is rank 3", op, "[1,2,3]");
+  
+  TF_ASSERT_OK(NodeDefBuilder("test", op_name)
+                    .Input({"input", 0, DT_FLOAT})
+                    .Attr("window_size", 4)
+                    .Attr("stride", 2)
+                    .Finalize(&op.node_def));
+
+  INFER_OK(op, "[?,?]", "[d0_1,?,3]");
+  INFER_OK(op, "[6,?]", "[d0_1,2,3]");
 }
 
 }  // namespace tensorflow
